@@ -5,6 +5,8 @@ Mysql
 Route:
 `GET /users/getUser` : Get all User
 
+<br />
+
 `POST /users/createUser` : 
 + Use with json
 json format example: 
