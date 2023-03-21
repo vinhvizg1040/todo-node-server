@@ -1,10 +1,11 @@
 const express = require('express');
-// const checkAuth = require('../../middlewares/checkAuth');
+const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 const userController = require('../controllers/userController');
 
-router.get('/getUser', userController.getAllUsers);
-router.post('/createUser', userController.createUser);
+router.post('/register', userController.register);
+router.post('/login', userController.login);
+router.get('/logout', userController.logout); // thêm đường dẫn /logout
 
 module.exports = router;

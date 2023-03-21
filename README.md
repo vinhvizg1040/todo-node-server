@@ -3,6 +3,9 @@ Mysql
 
 
 Route:
+
+<br />
+
 `GET /users/getUser` : Get all User
 
 <br />

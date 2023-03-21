@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sequelize = require('./config/database');
 const userRoute = require('./app/routes/userRoute');
+const adminRoute = require('./app/routes/adminRoute');
 
 const app = express();
 
@@ -18,6 +19,7 @@ sequelize
     });
 
 app.use('/users', userRoute);
+app.use('/admin', adminRoute);
 
 app.listen(3000, () => {
     console.log('Server started on port 3000');
