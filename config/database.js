@@ -13,16 +13,20 @@ const sequelize = new Sequelize(database, user, password, {
     dialect: 'mysql',
     logging:false,
     define: {
-        timestamps: false 
+        timestamps: false ,
         // don't add timestamp fields (createdAt, updatedAt) 
         // for each table
+        freezeTableName: true
+        // Enforcing the table name to be equal to the model name
     },
     sync: { alter: true }
      // automatically update database schema according to models
 });
 
-// // // auto sync
-// sequelize.sync();
+// // auto sync  
+// // chức năng này chỉ hoạt động khi một bảng đã có liên kết khóa ngoại
+sequelize.sync();
+// console.log("All models were synchronized successfully.");
 
 
 module.exports = sequelize;

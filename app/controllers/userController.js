@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
         // Create new user
         user = new User({
             username,
-            password
+            password,
         });
 
         // Encrypt password with bcrypt
@@ -60,16 +60,18 @@ exports.register = async (req, res) => {
         // Create and send JWT token
         const payload = {
             user: {
-                id: user.id
+                role: user.role
             }
         };
 
         jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '1h'
+            expiresIn: '2m'
         }, (err, token) => {
             if (err) throw err;
             res.json({
-                token
+                token,
+                username,
+
             });
         });
     } catch (err) {
@@ -102,10 +104,16 @@ exports.login = async (req, res) => {
 
         // Trả về token để giữ phiên đăng nhập
         const token = jwt.sign({
-            userId: user._id
-        }, process.env.JWT_SECRET);
+            role: user.role
+        }, process.env.JWT_SECRET, {
+            expiresIn: '2m'
+        });
+
         res.json({
-            token
+            token,
+            username: user.username,
+            role: user.role
+
         });
     } catch (error) {
         res.status(500).json({
