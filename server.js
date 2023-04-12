@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const sequelize = require('./config/database');
 const userRoute = require('./app/routes/userRoute');
 const adminRoute = require('./app/routes/adminRoute');
-const taskRoute = require('./app/routes/taskRoute');
 
 const app = express();
 
@@ -26,7 +25,6 @@ sequelize
     });
 
 
-app.use('/tasks', taskRoute)
 app.use('/users', userRoute);
 app.use('/admin', adminRoute);
 
