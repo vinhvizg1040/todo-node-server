@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const sequelize = require('./config/database');
 const userRoute = require('./app/routes/userRoute');
 const adminRoute = require('./app/routes/adminRoute');
+const boardRoute = require('./app/routes/boardRoute');
 
 const app = express();
 
@@ -15,18 +15,10 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log('Database connected...');
-    })
-    .catch(error => {
-        console.log('Error:', error);
-    });
-
 
 app.use('/users', userRoute);
 app.use('/admin', adminRoute);
+app.use('/board', boardRoute);
 
 app.listen(3001, () => {
     console.log('Server started on port 3001');

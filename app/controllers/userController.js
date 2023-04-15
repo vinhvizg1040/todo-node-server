@@ -2,11 +2,12 @@ const {
     body,
     validationResult
 } = require('express-validator');
-const User = require('../models/user');
+const db = require('../../config/database');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require("dotenv").config();
 
+const User = db.user;
 
 exports.register = async (req, res) => {
 
@@ -59,19 +60,17 @@ exports.register = async (req, res) => {
 
         // Create and send JWT token
         const payload = {
-            user: {
-                role: user.role
-            }
+            role: user.role,
+            user_id: user.user_id
         };
 
         jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '2m'
+            expiresIn: '1h'
         }, (err, token) => {
             if (err) throw err;
             res.json({
                 token,
-                username,
-
+                username
             });
         });
     } catch (err) {
@@ -103,10 +102,14 @@ exports.login = async (req, res) => {
         }
 
         // Trả về token để giữ phiên đăng nhập
-        const token = jwt.sign({
-            role: user.role
-        }, process.env.JWT_SECRET, {
-            expiresIn: '5m'
+
+        const payload = {
+            role: user.role,
+            user_id: user.user_id
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1h'
         });
 
         res.json({

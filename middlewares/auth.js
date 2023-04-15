@@ -21,7 +21,7 @@ function authorizeUser (req, res, next){
 }
 
 function authorizeAdmin(req, res, next) {
-    if (req.user.role !== 'admin') return res.sendStatus(403); // Quản trị viên không có quyền truy cập
+    if (req.user.role !== 'admin') return res.status(403);// Quản trị viên không có quyền truy cập
     next();
   }
 
