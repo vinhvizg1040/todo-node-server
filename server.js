@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const userRoute = require('./app/routes/userRoute');
 const adminRoute = require('./app/routes/adminRoute');
 const boardRoute = require('./app/routes/boardRoute');
+const listRoute = require('./app/routes/listRoute');
 
 const app = express();
 
@@ -19,6 +20,10 @@ app.use(bodyParser.json());
 app.use('/users', userRoute);
 app.use('/admin', adminRoute);
 app.use('/board', boardRoute);
+app.use('/list', listRoute);
+
+// const test = require('./config/test_mongo');
+// test.test();
 
 app.listen(3001, () => {
     console.log('Server started on port 3001');

@@ -1,16 +1,16 @@
-module.exports = (sequelize, Sequelize) => {
-    const List = sequelize.define('list', {
-        list_id: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        name: {
-            type: Sequelize.STRING(255),
-            allowNull: false
-        }
-    });
-
-    return List;
-}
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+// Model Lists
+const listSchema = new Schema({
+    name: String,
+    boardId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Board'
+    },
+    cards: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Card'
+    }],
+    order: Number
+});
+const List = mongoose.model('List', listSchema);

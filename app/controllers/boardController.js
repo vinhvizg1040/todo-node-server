@@ -1,11 +1,4 @@
-const {
-    body,
-    validationResult
-} = require('express-validator');
-const db = require('../../config/database');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const board = require('../models/board');
+const db = require('../../config/mysqldb');;
 require("dotenv").config();
 
 const User = db.user;
@@ -133,9 +126,6 @@ exports.deleteBoardbyId = async (req, res) => {
                     res.status(200).json("Delete success");
                 }
             })
-            .catch(error => {
-                res.status(500).json(error);
-            });
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -182,9 +172,6 @@ exports.updateBoardbyId = async (req, res) => {
                     res.status(200).json("Success");
                 }
             })
-            .catch(error => {
-                res.status(500).json(error);
-            });
     } catch (error) {
         res.status(500).json({
             message: error.message

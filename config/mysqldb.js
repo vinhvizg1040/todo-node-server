@@ -41,33 +41,33 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 db.user = require('../app/models/user')(sequelize, Sequelize);
 db.board = require('../app/models/board')(sequelize, Sequelize);
-db.card = require('../app/models/card')(sequelize, Sequelize);
-db.list = require('../app/models/list')(sequelize, Sequelize);
-db.atttachment = require('../app/models/atttachment')(sequelize, Sequelize);
+// db.card = require('../app/models/card')(sequelize, Sequelize);
+// db.list = require('../app/models/list')(sequelize, Sequelize);
+// db.atttachment = require('../app/models/atttachment')(sequelize, Sequelize);
 
 db.user.hasMany(db.board, {
     foreignKey: 'user_id'
 });
 
-db.user.hasMany(db.card, {
-    foreignKey: 'user_id'
-});
+// db.user.hasMany(db.card, {
+//     foreignKey: 'user_id'
+// });
 
-db.user.hasMany(db.list, {
-    foreignKey: 'user_id'
-});
+// db.user.hasMany(db.list, {
+//     foreignKey: 'user_id'
+// });
 
-db.card.hasMany(db.atttachment, {
-    foreignKey: 'card_id'
-});
+// db.card.hasMany(db.atttachment, {
+//     foreignKey: 'card_id'
+// });
 
-db.list.hasMany(db.card, {
-    foreignKey: 'list_id'
-});
+// db.list.hasMany(db.card, {
+//     foreignKey: 'list_id'
+// });
 
-db.board.hasMany(db.list, {
-    foreignKey: 'board_id'
-});
+// db.board.hasMany(db.list, {
+//     foreignKey: 'board_id'
+// });
 
 sequelize.sync();
 
