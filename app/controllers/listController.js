@@ -1,66 +1,100 @@
-const mysql = require('../../config/mysqldb');
-const lists = require('../../config/mongodb')
 require("dotenv").config();
 
-// const List = mysql.list;
+const List = require('../models/list');
+const Board = require('../models/board');
+const Card = require('../models/card');
 
-// async function insert() {
-//     const doc = {
+exports.getAllLists = async (req, res) => {
+    await List.find({})
+        .then(lists => {
+            res.status(200).json({
+                message: 'Get all boards successfully',
+                lists: lists
+            });
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: 'Internal server error',
+                error: error
+            });
+        });
+};
 
-//         title: "Record of a Shriveled Datum",
+exports.createList = async (req, res) => {
 
-//         content: "No bytes, no problem. Just insert a document, in MongoDB",
+    try {
+        const {
+            name,
+            board_id
+        } = req.body;
+        
+        const board = await Board.findById(board_id);
 
-//     }
+        if (!board) {
+            return res.status(404).json({
+                error: 'board not found!'
+            });
+        }
 
-//     const result = await lists.create(doc);
-// }
+        const list = new List({
+            name: name
+        });
 
-// insert();
+        board.lists.push(list._id);
 
-// exports.getAllLists = async (req, res) => {
-//     await List.findAll()
-//         .then(lists => {
-//             res.status(200).json({
-//                 message: 'Get all users successfully',
-//                 lists: lists
-//             });
-//         })
-//         .catch(error => {
-//             res.status(500).json({
-//                 message: 'Internal server error',
-//                 error: error
-//             });
-//         });
-// };
+        const updated = await list.save();
 
-// exports.createList = async (req, res) => {
+        await board.save();
 
-//     try {
-//         const {
-//             name,
-//             board_id
-//         } = req.body;
+        res.status(200).json({
+            message: 'list added!',
+            list: updated
+        })
 
-//         const user_id = req.user.user_id;
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
-//         if (name !== null) {
-//             List.create({
-//                 name,
-//                 user_id,
-//                 board_id
-//             }).then(list => {
-//                 res.status(200).json(list);
-//             });
-//         }
+exports.deleteListById = async (req, res) => {
 
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// };
+    try {
+        const list_id = req.body.list_id;
+        const user_id = req.user.user_id;
 
+        //check: user (user_id) have board (board_id) => return true/false
+        const isExists = await User.find({_id: user_id, boards: board_id}).count() > 0;
+
+        if(!isExists){
+            return res.status(402).json({
+                error: 'can`t delete other user`s board'
+            })
+        }
+
+        const board = await Board.findById(board_id);
+
+        if(!board){
+            return res.status(402).json({
+                error: 'board is not found!'
+            });
+        }
+
+        await User.updateMany({'boards': board_id}, {$pull: {'boards': board_id}});
+        const deleted = await Board.deleteOne({'_id': board_id});
+
+        if(deleted.ok){
+            return res.status(404).json({error: 'deleted failed!'})
+        }
+
+        res.status(200).json({board: board})
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
 // exports.getUserList = async (req, res) => {
 

@@ -9,5 +9,8 @@
       "user": "root",
       "password": "123",
       "database": "tdlist"
+    },
+    "mongodb": {
+      "url": "mongodb+srv://vinhvizg1040:Anhvi1040@vinhvizg.dlmjt0y.mongodb.net/td_list"
     }
 }

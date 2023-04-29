@@ -2,12 +2,11 @@ const {
     body,
     validationResult
 } = require('express-validator');
-const db = require('../../config/mysqldb');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require("dotenv").config();
 
-const User = db.user;
+const User = require('../models/user');
 
 exports.register = async (req, res) => {
 
@@ -34,10 +33,8 @@ exports.register = async (req, res) => {
         } = req.body;
 
         // Check if user already exists
-        let user = await User.findOne({
-            where: {
-                username
-            }
+        let user = await User.exists({
+            username: username
         });
         if (user) {
             return res.status(400).json({
@@ -83,13 +80,11 @@ exports.login = async (req, res) => {
     try {
         // Lấy user từ database
         const user = await User.findOne({
-            where: {
-                username: req.body.username
-            }
+            username: req.body.username
         });
         if (!user) {
             return res.status(400).json({
-                message: 'Tên đăng nhập hoặc mật khẩu không đúng'
+                message: 'Tên đăng nhập không đúng'
             });
         }
 
@@ -105,7 +100,7 @@ exports.login = async (req, res) => {
 
         const payload = {
             role: user.role,
-            user_id: user.user_id
+            user_id: user.id
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {

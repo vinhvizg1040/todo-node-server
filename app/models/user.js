@@ -1,25 +1,20 @@
-module.exports = (sequelize, Sequelize) => {
-    const User = sequelize.define('user', {
-        user_id: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        username: {
-            type: Sequelize.STRING(40),
-            allowNull: false
-        },
-        password: {
-            type: Sequelize.STRING(60),
-            allowNull: false
-        },
-        role: {
-            type: Sequelize.ENUM('admin', 'user'),
-            defaultValue: 'user',
-            allowNull: false
-        }
-    });
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+// Model Users
+const userSchema = new Schema({
+    username: String,
+    password: String,
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
+    boards: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Board'
+    }]
+});
 
-    return User;
-}
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

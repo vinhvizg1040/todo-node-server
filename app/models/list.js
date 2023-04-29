@@ -13,4 +13,7 @@ const listSchema = new Schema({
     }],
     order: Number
 });
+
 const List = mongoose.model('List', listSchema);
+
+module.exports = List;

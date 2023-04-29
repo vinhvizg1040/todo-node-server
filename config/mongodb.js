@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
-const DB_URI = "mongodb+srv://vinhvizg1040:Anhvi1040@vinhvizg.dlmjt0y.mongodb.net/td_list";
+const config = require('./config');
+const DB_URI = config.mongodb.url;
 
 
 mongoose.connect(DB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
  });
- 
+
  const db = mongoose.connection;
  
  db.on('error', (err) => {

@@ -2,15 +2,14 @@ const {
     body,
     validationResult
 } = require('express-validator');
-const db = require('../../config/mysqldb');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require("dotenv").config();
 
-const User = db.user;
+const User = require('../models/user');
 
 exports.getAllUsers = async (req, res) => {
-    await User.findAll()
+    await User.find({})
         .then(users => {
             res.status(200).json({
                 message: 'Get all users successfully',

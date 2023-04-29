@@ -1,16 +1,13 @@
-module.exports = (sequelize, Sequelize) => {
-    const Board = sequelize.define('board', {
-        board_id: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        name: {
-            type: Sequelize.STRING(255),
-            allowNull: false
-        }
-    });
-    
-    return Board;
-}
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+// Model Boards
+const boardSchema = new Schema({
+    name: String,
+    lists: [{
+        type: Schema.Types.ObjectId,
+        ref: 'List'
+    }]
+});
+
+const Board = mongoose.model('Board', boardSchema);
+module.exports = Board;
