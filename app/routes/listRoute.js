@@ -6,8 +6,7 @@ const listController = require('../controllers/listController');
 
 router.get('/getAllLists', auth.authenticateToken, auth.authorizeAdmin, listController.getAllLists);
 router.post('/createList', auth.authenticateToken, auth.authorizeUser, listController.createList);
-// router.get('/getUserList', auth.authenticateToken, auth.authorizeUser, listController.getUserList);
-// router.delete('/deleteListbyId', auth.authenticateToken, auth.authorizeUser, listController.deleteListbyId);
-// router.put('/updateListbyId', auth.authenticateToken, auth.authorizeUser, listController.updateListbyId);
+router.delete('/deleteListById', auth.authenticateToken, auth.authorizeUser, listController.deleteListById);
+router.put('/updateListById', auth.authenticateToken, auth.authorizeUser, listController.updateListById);
 
 module.exports = router;

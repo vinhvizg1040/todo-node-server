@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const List = require('../models/list');
 const Board = require('../models/board');
-const Card = require('../models/card');
+const User = require('../models/user');
 
 exports.getAllLists = async (req, res) => {
     await List.find({})
@@ -27,7 +27,7 @@ exports.createList = async (req, res) => {
             name,
             board_id
         } = req.body;
-        
+
         const board = await Board.findById(board_id);
 
         if (!board) {
@@ -62,33 +62,42 @@ exports.deleteListById = async (req, res) => {
 
     try {
         const list_id = req.body.list_id;
+        const board_id = req.body.board_id;
         const user_id = req.user.user_id;
 
-        //check: user (user_id) have board (board_id) => return true/false
-        const isExists = await User.find({_id: user_id, boards: board_id}).count() > 0;
-
-        if(!isExists){
+        //Checking User having this board_id (feature: checking User can edit this Board)
+        const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
+        if (!isBoardExists) {
             return res.status(402).json({
-                error: 'can`t delete other user`s board'
+                error: 'can`t edit other user`s board'
             })
         }
 
-        const board = await Board.findById(board_id);
-
-        if(!board){
+        // Checking user's Board having list_id
+        const isListExists = await Board.find({ _id: board_id, lists: list_id }).count() > 0;
+        if (!isListExists) {
             return res.status(402).json({
-                error: 'board is not found!'
+                error: 'can`t delete other user`s list'
+            })
+        }
+
+        // Delete it
+        const list = await List.findById(list_id);
+
+        if (!list) {
+            return res.status(402).json({
+                error: 'list is not found!'
             });
         }
 
-        await User.updateMany({'boards': board_id}, {$pull: {'boards': board_id}});
-        const deleted = await Board.deleteOne({'_id': board_id});
+        await Board.updateMany({ 'lists': list_id }, { $pull: { 'lists': list_id } });
+        const deleted = await List.deleteOne({ '_id': list_id });
 
-        if(deleted.ok){
-            return res.status(404).json({error: 'deleted failed!'})
+        if (deleted.deletedCount !== 1) {
+            return res.status(404).json({ error: 'deleted failed!' })
         }
 
-        res.status(200).json({board: board})
+        res.status(200).json({ list: list })
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -96,32 +105,10 @@ exports.deleteListById = async (req, res) => {
     }
 };
 
-// exports.getUserList = async (req, res) => {
+// exports.getListByBoard = async (req, res) => {
 
 //     try {
-//         const user_id = req.user.user_id;
-
-//         List.findAll({
-//                 where: {
-//                     user_id: user_id
-//                 }
-//             })
-//             .then(list => {
-//                 if (list) {
-//                     //nếu list tồn tại 
-//                     return list;
-//                 } else {
-//                     // Xử lý lỗi: không tìm thấy
-//                     res.status(400).json({
-//                         error: "List not found"
-//                     });
-//                 }
-//             })
-//             .then(list => {
-//                 res.status(200).json({
-//                     list
-//                 }); // In ra thông tin của bảng mới được tạo
-//             })
+//         
 //     } catch (error) {
 //         res.status(500).json({
 //             message: error.message
@@ -129,89 +116,50 @@ exports.deleteListById = async (req, res) => {
 //     }
 // };
 
-// exports.deleteListbyId = async (req, res) => {
+exports.updateListById = async (req, res) => {
 
-//     try {
-//         const list_id = req.body.list_id;
-//         const user_id = req.user.user_id;
+    try {
+        const user_id = req.user.user_id;
+        const {
+            name,
+            board_id,
+            list_id
+        } = req.body;
 
-//         List.finmysqlyPk(list_id)
-//             .then(list => {
-//                 if (list) {
-//                     //nếu board tồn tại, kiểm tra user_id (FK)
-//                     if (list.user_id === user_id) {
+        //Checking User having this board_id (feature: checking User can edit this Board)
+        const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
+        if (!isBoardExists) {
+            return res.status(404).json({
+                error: 'board not found!'
+            });
+        }
 
-//                         return List.destroy({
-//                             where: {
-//                                 list_id: list_id
-//                             }
-//                         });
-//                     } else {
-//                         res.status(400).json({
-//                             error: "Cannot delete other user's list"
-//                         });
-//                     }
-//                 } else {
-//                     // Xử lý lỗi: không tìm thấy người dùng
-//                     res.status(400).json({
-//                         error: "List not found"
-//                     });
-//                 }
-//             })
-//             .then(list => {
-//                 if (list) {
-//                     res.status(200).json("Delete success");
-//                 }
-//             })
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// };
+        // Checking user's Board having list_id
+        const isListExists = await Board.find({ _id: board_id, lists: list_id }).count() > 0;
+        if (!isListExists) {
+            return res.status(404).json({
+                error: 'list not found!'
+            });
+        }
 
-// exports.updateListbyId = async (req, res) => {
 
-//     try {
-//         const {
-//             list_id,
-//             name
-//         } = req.body;
-//         const user_id = req.user.user_id;
 
-//         List.finmysqlyPk(list_id)
-//             .then(list => {
-//                 if (list) {
-//                     //nếu board tồn tại, kiểm tra user_id (FK)
-//                     if (list.user_id === user_id) {
+        const lists = await List.updateOne({ _id: list_id }, { name: name });
 
-//                         return List.update({
-//                             name: name
-//                         }, {
-//                             where: {
-//                                 list_id: list_id
-//                             }
-//                         });
-//                     } else {
-//                         res.status(400).json({
-//                             error: "Cannot rename other user's board"
-//                         });
-//                     }
-//                 } else {
-//                     // Xử lý lỗi: không tìm thấy
-//                     res.status(400).json({
-//                         error: "Board not found"
-//                     });
-//                 }
-//             })
-//             .then(list => {
-//                 if (list) {
-//                     res.status(200).json("Success");
-//                 }
-//             })
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         });
-//     }
-// };
+        if (lists.modifiedCount !== 1) {
+            return res.status(402).json({
+                error: 'update failed !!'
+            })
+        }
+
+        res.status(200).json({
+            message: 'list updated!',
+            list: lists
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
