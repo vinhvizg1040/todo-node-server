@@ -11,6 +11,7 @@ router.get('/getUserBoards', auth.authenticateToken, auth.authorizeUser, boardCo
 router.put('/updateBoardbyId', auth.authenticateToken, auth.authorizeUser, boardController.updateBoardbyId);
 router.delete('/deleteBoardbyId', auth.authenticateToken, auth.authorizeUser, boardController.deleteBoardbyId);
 
-router.get('/getBoardbyId', auth.authenticateToken, auth.authorizeUser, boardController.getBoardbyId);
+router.post('/getBoardbyId', auth.authenticateToken, auth.authorizeUser, boardController.getBoardbyId);
+router.get('/getFirstBoard', auth.authenticateToken, auth.authorizeUser, boardController.getFirstBoard);
 
 module.exports = router;
