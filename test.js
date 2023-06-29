@@ -25,33 +25,48 @@ const User = require('./app/models/user');
 const Card = require('./app/models/card');
 
 async function test() {
-    
-        const list_id = "6458aca672594c6c22e4fcf7";
-        const board_id = "6458ac8772594c6c22e4fcf3";
-        const user_id = "6443a931706c5fba6c95c28b";
-        const name = 'name33'        
-        
-        //Checking User having this board_id (feature: checking User can edit this Board)
-        const isBoardExists = await User.find({_id: user_id, boards: board_id}).count() > 0;
-        if(!isBoardExists){
-            console.log('isBoardExists = false');
+
+
+    const data = [
+        {
+            "_id": "644a4a8ae2e630074d40792a",
+            "name": "listName 12",
+            "cards": [
+                {
+                    "_id": "64589935bd52e678ef5efba4",
+                    "name": "cardName 1"
+                }
+            ]
+        },
+        {
+            "_id": "645777bc3fdce6639ff3d227",
+            "name": "listName 1",
+            "cards": []
         }
-        
-        // Checking user's Board having list_id
-        const isListExists = await Board.find({_id: board_id, lists: list_id}).count() > 0;
-        if(!isListExists){
-            console.log('isListExists = false');
+    ];
+
+    const input = [
+        {
+          "name": "John",
+          "control": "1",
+          "available": "true",
+          
+        },
+        {
+          "name": "Peter",
+          "control": "2",
+          "available": "true"
         }
+      ];
 
+    let res = data.reduce((acc, user) => {
+        let { _id, name, cards } = user;
+        acc[_id] = cards;
 
+        return acc;
+    }, {});
 
-        const lists = await List.updateOne({_id: list_id}, {name: name});
-
-        if(lists.modifiedCount !== 1){
-            console.log(lists.modifiedCount);
-        }
-        
-        console.log(await List.find({_id: list_id}));
+    console.log(res);
 
     // console.log(mongoose.connection.db);
 }

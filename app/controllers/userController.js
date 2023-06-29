@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
         await body('password').notEmpty().isLength({
             max: 15
         }).withMessage('Password must not be empty and must not exceed 15 characters.').run(req);
+        // await body('mail').notEmpty().withMessage('must not be empty and look like xxx@xxx.xxx').matches(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).run(req);
 
         const errors = validationResult(req);
 
@@ -29,23 +30,35 @@ exports.register = async (req, res) => {
 
         const {
             username,
-            password
+            password,
+            // mail
         } = req.body;
 
         // Check if user already exists
-        let user = await User.exists({
+        let isUserExist = await User.exists({
             username: username
         });
-        if (user) {
+        if (isUserExist) {
             return res.status(400).json({
                 error: 'User already exists'
             });
         }
 
+        // Check if mail already exists
+        // let isMailExist = await User.exists({
+        //     mail: mail
+        // });
+        // if (isMailExist) {
+        //     return res.status(400).json({
+        //         error: 'Mail already exists'
+        //     });
+        // }
+
         // Create new user
-        user = new User({
+        let user = new User({
             username,
             password,
+            // mail,
         });
 
         // Encrypt password with bcrypt
@@ -62,17 +75,19 @@ exports.register = async (req, res) => {
         };
 
         jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '1h'
+            expiresIn: '3h'
         }, (err, token) => {
             if (err) throw err;
             res.json({
                 token,
-                username
+                userId: user.id,
+                username: user.username,
+                role: user.role
             });
         });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(500).send({message: err.message});
     }
 };
 
@@ -104,7 +119,7 @@ exports.login = async (req, res) => {
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '1h'
+            expiresIn: '3h'
         });
 
         res.json({

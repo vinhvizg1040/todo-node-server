@@ -9,4 +9,6 @@ router.post('/createList', auth.authenticateToken, auth.authorizeUser, listContr
 router.delete('/deleteListById', auth.authenticateToken, auth.authorizeUser, listController.deleteListById);
 router.put('/updateListById', auth.authenticateToken, auth.authorizeUser, listController.updateListById);
 
+router.post('/UpdateListOfCardsPosition', auth.authenticateToken, auth.authorizeUser, listController.UpdateListOfCardsPosition);
+
 module.exports = router;

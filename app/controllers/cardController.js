@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const List = require('../models/list');
 const Card = require('../models/card');
+const User = require('../models/user');
+const Board = require('../models/board');
 
 exports.getAllCards = async (req, res) => {
     await Card.find({})
@@ -22,33 +24,46 @@ exports.getAllCards = async (req, res) => {
 exports.createCard = async (req, res) => {
 
     try {
-        // const {
-        //     name,
-        //     list_id
-        // } = req.body;
+        const {
+            name,
+            list_id,
+            board_id
+        } = req.body;
         
-        // const list = await List.findById(list_id);
+        const user_id = req.user.user_id;
 
-        // if (!list) {
-        //     return res.status(404).json({
-        //         error: 'card not found!'
-        //     });
-        // }
+        //Checking User having this board_id (feature: checking User can edit this Board)
+        const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
+        if (!isBoardExists) {
+            return res.status(402).json({
+                message: 'can`t edit other user`s board'
+            })
+        }
 
-        // const card = new Card({
-        //     name: name
-        // });
+        // Checking user's Board having list_id
+        const isListExists = await Board.find({ _id: board_id, lists: list_id }).count() > 0;
+        if (!isListExists) {
+            return res.status(402).json({
+                message: 'can`t delete other user`s list'
+            })
+        }
+        
+        const list = await List.findById(list_id);
 
-        // list.cards.push(card._id);
+        const card = new Card({
+            name: name
+        });
 
-        // const updated = await card.save();
+        list.cards.push(card._id);
 
-        // await list.save();
+        const updated = await card.save();
 
-        // res.status(200).json({
-        //     message: 'Card added!',
-        //     card: updated
-        // })
+        await list.save();
+
+        res.status(200).json({
+            message: 'Card added!',
+            card: updated
+        })
 
     } catch (error) {
         res.status(500).json({

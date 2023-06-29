@@ -23,18 +23,21 @@ exports.getAllLists = async (req, res) => {
 exports.createList = async (req, res) => {
 
     try {
+        const user_id = req.user.user_id;
         const {
             name,
             board_id
         } = req.body;
 
-        const board = await Board.findById(board_id);
-
-        if (!board) {
+        //Checking User having this board_id (feature: checking User can edit this Board)
+        const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
+        if (!isBoardExists) {
             return res.status(404).json({
                 error: 'board not found!'
             });
         }
+
+        const board = await Board.findById(board_id);
 
         const list = new List({
             name: name
@@ -42,13 +45,13 @@ exports.createList = async (req, res) => {
 
         board.lists.push(list._id);
 
-        const updated = await list.save();
+        const saved = await list.save();
 
         await board.save();
 
         res.status(200).json({
             message: 'list added!',
-            list: updated
+            list: saved
         })
 
     } catch (error) {
@@ -61,15 +64,17 @@ exports.createList = async (req, res) => {
 exports.deleteListById = async (req, res) => {
 
     try {
-        const list_id = req.body.list_id;
-        const board_id = req.body.board_id;
         const user_id = req.user.user_id;
+        const {
+            board_id,
+            list_id,
+        } = req.body;
 
         //Checking User having this board_id (feature: checking User can edit this Board)
         const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
         if (!isBoardExists) {
             return res.status(402).json({
-                error: 'can`t edit other user`s board'
+                message: 'can`t edit other user`s board'
             })
         }
 
@@ -77,7 +82,7 @@ exports.deleteListById = async (req, res) => {
         const isListExists = await Board.find({ _id: board_id, lists: list_id }).count() > 0;
         if (!isListExists) {
             return res.status(402).json({
-                error: 'can`t delete other user`s list'
+                message: 'can`t delete other user`s list'
             })
         }
 
@@ -86,7 +91,7 @@ exports.deleteListById = async (req, res) => {
 
         if (!list) {
             return res.status(402).json({
-                error: 'list is not found!'
+                message: 'list is not found!'
             });
         }
 
@@ -94,7 +99,7 @@ exports.deleteListById = async (req, res) => {
         const deleted = await List.deleteOne({ '_id': list_id });
 
         if (deleted.deletedCount !== 1) {
-            return res.status(404).json({ error: 'deleted failed!' })
+            return res.status(404).json({ message: 'deleted failed!' })
         }
 
         res.status(200).json({ list: list })
@@ -130,7 +135,7 @@ exports.updateListById = async (req, res) => {
         const isBoardExists = await User.find({ _id: user_id, boards: board_id }).count() > 0;
         if (!isBoardExists) {
             return res.status(404).json({
-                error: 'board not found!'
+                message: 'board not found!'
             });
         }
 
@@ -138,7 +143,7 @@ exports.updateListById = async (req, res) => {
         const isListExists = await Board.find({ _id: board_id, lists: list_id }).count() > 0;
         if (!isListExists) {
             return res.status(404).json({
-                error: 'list not found!'
+                message: 'list not found!'
             });
         }
 
@@ -148,7 +153,7 @@ exports.updateListById = async (req, res) => {
 
         if (lists.modifiedCount !== 1) {
             return res.status(402).json({
-                error: 'update failed !!'
+                message: 'update failed !!'
             })
         }
 
@@ -163,3 +168,34 @@ exports.updateListById = async (req, res) => {
         });
     }
 };
+
+exports.UpdateListOfCardsPosition = async (req, res) => {
+    try {
+        const user_id = req.user.user_id;
+        const {
+            listCards
+        } = req.body;
+
+        for (const listId in listCards) {
+            if (listCards[listId].toString() === "") {
+                //donot something
+                // console.log("null");
+            } else {
+                const updated = await List.updateOne({ _id: listId }, { cards: listCards[listId].map(({ _id }) => (_id)) });
+                if (updated.modifiedCount !== 1) {
+                    return res.status(402).json({
+                        message: 'update failed !!'
+                    })
+                }
+            }
+        }
+        res.status(200).json({
+            message: 'list updated!',
+            cards: listCards
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
